@@ -7,7 +7,7 @@ using namespace std;
 int main() {
 
 	manager man;
-	string s{"taskX"};
+	string s{ "taskX" };
 	srand(time(0));
 	for (int i = 0; i < 100; ++i) {
 		s[s.size() - 1] = char(i + 65);
@@ -21,6 +21,6 @@ int main() {
 	man.add_conc_poss(move(task(3, 0, 35, s)));*/
 
 	man.show();
-
+	cin.get();
 	return 0;
 }

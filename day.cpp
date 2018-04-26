@@ -32,7 +32,8 @@ int day::manage(task& new_task) {
 			day_congestion = (float)last_position / M;
 
 			return last_position;
-		} else {
+		}
+		else {
 			time -= vec_tasks[tmp].duration;
 			tmp++;
 		}

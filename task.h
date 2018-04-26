@@ -4,7 +4,7 @@
 
 class task {
 public:
-	task(int imp, int dat, int dur, std::string des):
+	task(int imp, int dat, int dur, std::string des) :
 		importance(imp), date(dat), duration(dur), ended(false), description(des) {};
 	int importance;
 	int date;
@@ -17,7 +17,7 @@ public:
 		else
 			return this->importance < other.importance;
 	};
-	void make_done() {ended = true;};
+	void make_done() { ended = true; };
 };
 
 #endif

@@ -12,9 +12,9 @@ public:
 	float day_congestion;
 	int last_position;
 	std::vector <task> vec_tasks;
-	day(): day_number(0), day_congestion(0.0), last_position(0) {};
+	day() : day_number(0), day_congestion(0.0), last_position(0) {};
 	void show();
-	void set_num(int num) {day_number = num;};
+	void set_num(int num) { day_number = num; };
 	void add(task& new_task);
 	int manage(task& new_task);///(doesnt work as it should yet)
 };

@@ -20,7 +20,8 @@ void manager::add_conc_poss(task&& new_task) {
 			mem_schedule[current_day][p] = true;////manager mem
 		day_schedule[current_day].add(new_task);////add in day
 
-	} else {
+	}
+	else {
 		int new_time = day_schedule[current_day].manage(new_task);///rebuilding day schedule
 
 		if (new_time >= 0)
@@ -32,7 +33,7 @@ void manager::add_conc_poss(task&& new_task) {
 			}
 		else
 			cout << "cant insert/manage the task " << new_task.description << " dur "
-			     << current_dur << " importance " << new_task.importance << " in day " << current_day << endl;
+			<< current_dur << " importance " << new_task.importance << " in day " << current_day << endl;
 	}
 };
 
@@ -40,9 +41,9 @@ void manager::show() {
 	for (int i = 0; i < N; ++i) {
 		for (int j = 0; j < M; ++j)
 			if (mem_schedule[i][j])
-				cout << "\e[41m\e[30m" << mem_schedule[i][j] << "\e[0m";
+				cout <<  mem_schedule[i][j];
 			else
-				cout << "\e[42m\e[37m" << mem_schedule[i][j] << "\e[0m";
+				cout  << mem_schedule[i][j];
 		cout << endl;
 	}
 	for (int i = 0; i < N; ++i)
