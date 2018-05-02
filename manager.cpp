@@ -1,51 +1,57 @@
 #include "manager.h"
+#include <iostream>
 
-using namespace std;
 
-manager::manager() {
-	for (int i = 0; i < N; ++i) {
-		day_schedule[i].set_num(i);
-		for (int j = 0; j < M; ++j)
-			mem_schedule[i][j] = false;
-	}
-};
-
-void manager::add_conc_poss(task&& new_task) {
-	int current_day = new_task.date;
-	int current_dur = new_task.duration;
-	int last = day_schedule[current_day].last_position;
-
-	if (last + current_dur - M * (congestion + error) <= 0) {
-		for (int p = last; p < current_dur + last; ++p)
-			mem_schedule[current_day][p] = true;////manager mem
-		day_schedule[current_day].add(new_task);////add in day
-
-	}
-	else {
-		int new_time = day_schedule[current_day].manage(new_task);///rebuilding day schedule
-
-		if (new_time >= 0)
-			for (int y = 0; y < M; ++y) {
-				if (y < new_time)
-					mem_schedule[current_day][y] = true;
-				else
-					mem_schedule[current_day][y] = false;
-			}
-		else
-			cout << "cant insert/manage the task " << new_task.description << " dur "
-			<< current_dur << " importance " << new_task.importance << " in day " << current_day << endl;
-	}
-};
-
-void manager::show() {
-	for (int i = 0; i < N; ++i) {
-		for (int j = 0; j < M; ++j)
-			if (mem_schedule[i][j])
-				cout <<  mem_schedule[i][j];
-			else
-				cout  << mem_schedule[i][j];
-		cout << endl;
-	}
+Manager::Manager()
+{
 	for (int i = 0; i < N; ++i)
-		day_schedule[i].show();
-};
+		schedule[i].set_num(i);
+}
+
+void Manager::show_schedule()
+{
+	for (auto &i : schedule)
+		i.show();
+}
+
+void Manager::add_concrete_time(Task &&some_task)
+{
+	try
+	{
+		if (some_task.left < 0)
+			throw 1;
+		if (some_task.left + some_task.duration > M)
+			throw 2;
+	}
+	catch (int i)
+	{
+		if (i == 1)
+		{
+			std::cout << "Bad input" << std::endl;
+			some_task.left = 0;
+		}
+		if (i == 2)
+		{
+			std::cout << "Not enough space" << std::endl;
+			some_task.duration = M - some_task.left;
+		}
+	}
+	schedule[some_task.day].vec_tasks_at_all.push_back(some_task);
+	schedule[some_task.day].not_processed.push_back(some_task);
+	schedule[some_task.day].add_task_concrete_time(some_task);
+}
+
+void Manager::add_abstract_task(Task &&some_task)
+{
+	if (some_task.day_time == 0)
+	{
+		for (int j = 0; j < M / 2; ++j)
+		{
+			if (schedule[some_task.day].arr2[j] == 0)
+				some_task.left = j;
+		}
+	}
+
+	schedule[some_task.day].vec_tasks_at_all.push_back(some_task);
+	schedule[some_task.day].not_processed.push_back(some_task);
+}

@@ -1,21 +1,27 @@
 #ifndef DAY_H
 #define DAY_H
-#include <vector>
-#include <iostream>
-#include <algorithm>
-#include "settings.h"
-#include "task.h"
 
-class day {
+#include <array>
+#include <vector>
+
+#include  "settings.h"
+#include "task.h"
+class Day
+{
 public:
+	std::array<bool, M> arr;
+	std::array<int, M> arr2;
 	int day_number;
 	float day_congestion;
-	int last_position;
-	std::vector <task> vec_tasks;
-	day() : day_number(0), day_congestion(0.0), last_position(0) {};
+	std::vector<Task> vec_tasks_at_all{};
+	std::vector<Task> not_processed{};
+	std::vector<Task> processed{};
+public:
+	Day();
 	void show();
-	void set_num(int num) { day_number = num; };
-	void add(task& new_task);
-	int manage(task& new_task);///(doesnt work as it should yet)
+	void add_task_concrete_time(Task &);
+	void set_num(int);
+
+
 };
 #endif

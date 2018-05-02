@@ -1,23 +1,26 @@
 #ifndef TASK_H
 #define TASK_H
-#include <string>
 
-class task {
+#include <string>
+class Task
+{
 public:
-	task(int imp, int dat, int dur, std::string des) :
-		importance(imp), date(dat), duration(dur), ended(false), description(des) {};
 	int importance;
-	int date;
+	int day;
 	int duration;
-	bool ended;
+	int left;
+	int day_time;
+	bool divisibility;
 	std::string description;
-	bool operator<(const task &other) const {
-		if (this->importance == other.importance)
-			return this->duration > other.duration;
-		else
-			return this->importance < other.importance;
-	};
-	void make_done() { ended = true; };
+
+public:
+	Task(int imp, int day, int dur, int l, int day_t, bool div, std::string);
+	Task(int imp, int day, int dur, int day_t, bool div, std::string);
+	bool operator<(const Task &other_task) const;
+	bool operator==(const Task &other_task) const;
+	void print();
+	void print_abstract();
+
 };
 
 #endif

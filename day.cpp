@@ -1,42 +1,123 @@
 #include "day.h"
+#include <iostream>
+#include <vector>
+Day::Day()
+{
+	for (auto &i : arr)
+		i = false;
+	for (auto &i : arr2)
+		i = 0;
+	day_congestion = 0;
+	
+}
 
-using namespace std;
+void Day::set_num(int num)
+{
+	this->day_number = num;
+}
 
-void day::show() {
-	sort(vec_tasks.begin(), vec_tasks.end());
+void Day::show()
+{
 
-	cout << "day " << day_number << ' ' << day_congestion << ": ";
-	for (auto& a : vec_tasks)
-		cout << a.description << '-' << a.duration << '-' << a.importance << ' ';
-	cout << endl;
-};
+	std::cout << std::endl << "Day number: " << this->day_number << "; Congestion: " << this->day_congestion << std::endl;
+	for (auto &i : arr2)
+		std::cout << i << std::flush;
 
-void day::add(task& new_task) {
-	vec_tasks.push_back(new_task);///push into task vector
-	day_congestion += (float)new_task.duration / M;
-	last_position += new_task.duration;
-};
+	std::cout << std::endl;
 
-int day::manage(task& new_task) {
-	sort(vec_tasks.begin(), vec_tasks.end());
-
-	int tmp = 0;
-	int time = last_position;
-	while (vec_tasks[tmp] < new_task) {///overloaded
-		if (time + new_task.duration - vec_tasks[tmp].duration - M * (congestion + error) <= 0) {
-
-			vec_tasks.erase(vec_tasks.begin(), vec_tasks.begin() + tmp);
-
-			vec_tasks.push_back(new_task);
-			last_position = time + new_task.duration - vec_tasks[tmp].duration;
-			day_congestion = (float)last_position / M;
-
-			return last_position;
-		}
-		else {
-			time -= vec_tasks[tmp].duration;
-			tmp++;
-		}
+	
+	std::cout << "Vec at all" << std::endl;
+	for (auto &i : vec_tasks_at_all)
+	{
+		if (i.day_time == 0 || i.day_time == 1 || i.day_time == 2)
+			i.print_abstract();
+		else
+			i.print();
 	}
-	return -1;
-};
+	std::cout << "Not processed" << std::endl;
+	for (auto &i : not_processed)
+	{
+		if (i.day_time == 0 || i.day_time == 1 || i.day_time == 2)
+			i.print_abstract();
+		else
+			i.print();
+	}
+	
+	std::cout << "Processed" << std::endl;
+	for (auto &i : processed)
+	{
+		if (i.day_time == 0 || i.day_time == 1 || i.day_time == 2)
+			i.print_abstract();
+		else
+			i.print();
+	}
+	std::cout << std::endl;
+}
+
+void Day::add_task_concrete_time(Task &some_task)
+{
+	std::vector<Task>::iterator sm_t = not_processed.end() - 1;
+
+	int sum = 0;
+
+	for (int i = some_task.left; i < some_task.left + some_task.duration; ++i)
+		sum += arr2[i];//проверка есть ли что-то
+	
+	if (sum == 0)//нет
+	{
+		for (int i = some_task.left; i < some_task.left + some_task.duration; ++i)
+			arr2[i] = some_task.importance;
+		not_processed.erase(sm_t);
+		processed.push_back(some_task);
+	}
+	else if (sum != 0)//есть
+	{
+		int j = some_task.left;
+		while (j < some_task.left + some_task.duration)
+		{
+			if (some_task.importance > arr2[j])//imp2 > imp1
+			{
+				arr2[j] = some_task.importance;
+				for (std::vector<Task>::iterator it = processed.begin(); it < processed.end(); ++it)//то, что закрыл - вернуть в вектор необработанных
+				{
+					if (j == it->left)
+					{
+						for (j = it->left; j < it->left + it->duration; ++j)
+							arr2[j] = some_task.importance;
+
+						j = it->left + it->duration; //-1?
+
+						not_processed.push_back(*it);
+						processed.erase(it);
+						bool already_added = false;
+						for (std::vector<Task>::iterator jt = processed.begin(); jt < processed.end(); ++jt)
+						{
+							if (*jt == some_task)
+								++already_added;
+						}
+						if (!already_added)
+							processed.push_back(some_task);
+
+						for (std::vector<Task>::iterator qt = not_processed.begin(); qt < not_processed.end(); ++qt)
+						{
+							if (*qt == some_task)
+								not_processed.erase(qt);
+							break;
+						}
+						goto mark;
+					}
+				}
+
+				//еще обработка
+			}
+			else if (some_task.importance < arr2[j])//imp2 < imp1
+			{
+
+			}
+			++j;
+		mark:;
+		}
+		
+	}
+}
+
