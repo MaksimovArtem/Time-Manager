@@ -61,8 +61,8 @@ void Day::add_task_concrete_time(Task &some_task)
 	bool smaller_b_imp = false;
 	int sum = 0;
 
-	for (int i = some_task.left; i < some_task.left + some_task.duration; ++i)
-		sum += arr2[i];//проверка есть ли что-то
+	for (int i = some_task.left; i < some_task.left + some_task.duration; ++i)//проверка есть ли что-то
+		sum += arr2[i];
 	
 	if (sum == 0)//нет
 	{
@@ -83,7 +83,7 @@ void Day::add_task_concrete_time(Task &some_task)
 				{
 					if (j == it->left)
 					{
-						++smaller_b_imp;
+						++smaller_b_imp;//не часть большего. Случай 1
 						if (some_task.left + some_task.duration < it->left + it->duration)
 							for (int q = some_task.left+some_task.duration; q < it->left + it->duration; ++q)
 								arr2[q] = 0;
@@ -93,13 +93,14 @@ void Day::add_task_concrete_time(Task &some_task)
 								arr2[q] = some_task.importance;
 						}
 						if(some_task.left > it->left)
-							it->duration = some_task.left - 1;
+							it->duration = some_task.left;
+
 						j = it->left + it->duration;
 
 						not_processed.push_back(*it);
 						processed.erase(it);
 						
-						for (std::vector<Task>::iterator jt = processed.begin(); jt < processed.end(); ++jt)
+						for (std::vector<Task>::iterator jt = processed.begin(); jt < processed.end(); ++jt)//добавление в вектор обработанных
 						{
 							if (*jt == some_task)
 								++already_added;
@@ -107,7 +108,7 @@ void Day::add_task_concrete_time(Task &some_task)
 						if (!already_added)
 							processed.push_back(some_task);
 
-						for (std::vector<Task>::iterator qt = not_processed.begin(); qt < not_processed.end(); ++qt)
+						for (std::vector<Task>::iterator qt = not_processed.begin(); qt < not_processed.end(); ++qt)//удаление из вектора необработанных
 						{
 							if (*qt == some_task)
 							{
@@ -115,18 +116,15 @@ void Day::add_task_concrete_time(Task &some_task)
 								break;
 							}
 						}
-
-						
 						goto mark;
 					}
 				}
 				
-				if (!smaller_b_imp)//делимое задание!!!!!!! 5559999555
-					//попадание в большое задание
+				if (!smaller_b_imp)//попадание в большое задание Случай 2
 				{
 					++smaller_b_imp;
 					int k = some_task.left;
-					while (k > 0)
+					while (k > 0)//иду влево, определяю задание, куда попал
 					{
 						if (arr2[k - 1] != 0)
 						{
@@ -134,7 +132,7 @@ void Day::add_task_concrete_time(Task &some_task)
 							{
 								if (k - 1 == jt->left)
 								{
-									if (jt->divisibility == 0)
+									if (jt->divisibility == 0)//если неделимое, то режь
 									{
 										int old_dur = jt->duration;
 										jt->duration = some_task.left;
@@ -149,10 +147,9 @@ void Day::add_task_concrete_time(Task &some_task)
 							}
 						}
 						--k;
-					}
-
-					
-					for (std::vector<Task>::iterator qt = not_processed.begin(); qt < not_processed.end(); ++qt)
+					}	
+					j = some_task.left + some_task.duration;
+					for (std::vector<Task>::iterator qt = not_processed.begin(); qt < not_processed.end(); ++qt)//удаление из вектора необр
 					{
 						if (*qt == some_task)
 						{
@@ -160,7 +157,7 @@ void Day::add_task_concrete_time(Task &some_task)
 							break;
 						}
 					}
-					for (std::vector<Task>::iterator jt = processed.begin(); jt < processed.end(); ++jt)
+					for (std::vector<Task>::iterator jt = processed.begin(); jt < processed.end(); ++jt)//добавление в вектор обработанных
 					{
 						if (*jt == some_task)
 							++already_added;
@@ -170,9 +167,78 @@ void Day::add_task_concrete_time(Task &some_task)
 					
 				}
 			}
-			else if (some_task.importance < arr2[j])//imp2 < imp1
+			else if (some_task.importance == arr2[j])//imp2 = imp1
 			{
+				char choice;
+				bool found = false;
+				for (std::vector<Task>::iterator it = processed.begin(); it < processed.end(); ++it)
+				{
+					if (some_task.importance == it->importance && it->day_time == 228)//вставка по времени
+					{
+						std::cout << "Do you want to stay:\n" << some_task.description << "\nor \n" << it->description << " ?\n" << std::endl;
+						std::cout << "Press 1 to choose " << it->description << ". Press 2 to choose " << some_task.description << ". Press F to pay respect." << std::endl;
+						std::cin >> choice;
+						switch (choice)
+						{
+						case '1':
+							
+							break;
+						case '2':
+							if (some_task.left == it->left)
+							{
+								if (some_task.left + some_task.duration < it->left + it->duration)
+									for (int q = some_task.left + some_task.duration; q < it->left + it->duration; ++q)
+										arr2[q] = 0;
 
+								if (it->duration < some_task.duration)
+									j = some_task.left + it->duration;
+								else
+									j = some_task.left + some_task.duration;
+
+								not_processed.push_back(*it);//удаления/добавления
+								processed.erase(it);
+								not_processed.erase(not_processed.end() - 1);
+								processed.push_back(some_task);
+								
+								++found;
+								break;
+							}
+							else if (some_task.left > it->left)
+							{
+								j =  it->left + it->duration-1;
+								it->duration = some_task.left;
+								if(it->divisibility == 0)
+									for (int q = it->left; q < it->left + it->duration; ++q)
+										arr2[q] == 0;
+								for (int q = some_task.left; q < it->left+it->duration; ++q)
+									arr2[q] = some_task.importance;
+								not_processed.erase(not_processed.end() - 1);
+								processed.push_back(some_task);
+								
+								
+								++found;
+								break;
+							}
+							else if (some_task.left < it->left)
+							{
+								for (int q = some_task.left; q < some_task.left + some_task.duration; ++q)
+									arr2[q] = some_task.importance;
+								for (int q = some_task.left + some_task.duration; q < it->left + it->duration; ++q)
+									arr2[q] = 0;
+								not_processed.push_back(*it);
+								processed.erase(it);
+								not_processed.erase(not_processed.end() - 1);
+								processed.push_back(some_task);
+								j = some_task.left + some_task.duration;
+								++found;
+								break;
+							}
+							break;
+						}
+					}
+					if (found)
+						break;
+				}
 			}
 			++j;
 		mark:;

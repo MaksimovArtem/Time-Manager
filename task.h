@@ -18,6 +18,7 @@ public:
 	Task(int imp, int day, int dur, int day_t, bool div, std::string);
 	bool operator<(const Task &other_task) const;
 	bool operator==(const Task &other_task) const;
+	
 	void print();
 	void print_abstract();
 
