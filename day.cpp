@@ -56,8 +56,7 @@ void Day::show()
 
 void Day::add_task_concrete_time(Task &some_task)
 {
-	std::vector<Task>::iterator sm_t = not_processed.end() - 1;
-
+	bool already_added = false;
 	int sum = 0;
 
 	for (int i = some_task.left; i < some_task.left + some_task.duration; ++i)
@@ -67,7 +66,7 @@ void Day::add_task_concrete_time(Task &some_task)
 	{
 		for (int i = some_task.left; i < some_task.left + some_task.duration; ++i)
 			arr2[i] = some_task.importance;
-		not_processed.erase(sm_t);
+		not_processed.erase(not_processed.end() - 1);
 		processed.push_back(some_task);
 	}
 	else if (sum != 0)//есть
@@ -89,7 +88,7 @@ void Day::add_task_concrete_time(Task &some_task)
 
 						not_processed.push_back(*it);
 						processed.erase(it);
-						bool already_added = false;
+						
 						for (std::vector<Task>::iterator jt = processed.begin(); jt < processed.end(); ++jt)
 						{
 							if (*jt == some_task)
@@ -101,8 +100,10 @@ void Day::add_task_concrete_time(Task &some_task)
 						for (std::vector<Task>::iterator qt = not_processed.begin(); qt < not_processed.end(); ++qt)
 						{
 							if (*qt == some_task)
+							{
 								not_processed.erase(qt);
-							break;
+								break;
+							}
 						}
 						goto mark;
 					}
