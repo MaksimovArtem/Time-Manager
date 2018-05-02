@@ -1,6 +1,7 @@
 #include "day.h"
 #include <iostream>
 #include <vector>
+
 Day::Day()
 {
 	for (auto &i : arr)
@@ -57,6 +58,7 @@ void Day::show()
 void Day::add_task_concrete_time(Task &some_task)
 {
 	bool already_added = false;
+	bool smaller_b_imp = false;
 	int sum = 0;
 
 	for (int i = some_task.left; i < some_task.left + some_task.duration; ++i)
@@ -73,7 +75,7 @@ void Day::add_task_concrete_time(Task &some_task)
 	{
 		int j = some_task.left;
 		while (j < some_task.left + some_task.duration)
-		{
+		{	
 			if (some_task.importance > arr2[j])//imp2 > imp1
 			{
 				arr2[j] = some_task.importance;
@@ -81,10 +83,18 @@ void Day::add_task_concrete_time(Task &some_task)
 				{
 					if (j == it->left)
 					{
-						for (j = it->left; j < it->left + it->duration; ++j)
-							arr2[j] = some_task.importance;
-
-						j = it->left + it->duration; //-1?
+						++smaller_b_imp;
+						if (some_task.left + some_task.duration < it->left + it->duration)
+							for (int q = some_task.left+some_task.duration; q < it->left + it->duration; ++q)
+								arr2[q] = 0;
+						for (int q = it->left; q < it->left + it->duration; ++q)
+						{
+							if (q < some_task.left + some_task.duration)
+								arr2[q] = some_task.importance;
+						}
+						if(some_task.left > it->left)
+							it->duration = some_task.left - 1;
+						j = it->left + it->duration;
 
 						not_processed.push_back(*it);
 						processed.erase(it);
@@ -105,11 +115,60 @@ void Day::add_task_concrete_time(Task &some_task)
 								break;
 							}
 						}
+
+						
 						goto mark;
 					}
 				}
+				
+				if (!smaller_b_imp)//делимое задание!!!!!!! 5559999555
+					//попадание в большое задание
+				{
+					++smaller_b_imp;
+					int k = some_task.left;
+					while (k > 0)
+					{
+						if (arr2[k - 1] != 0)
+						{
+							for (std::vector<Task>::iterator jt = processed.begin(); jt < processed.end(); ++jt)
+							{
+								if (k - 1 == jt->left)
+								{
+									if (jt->divisibility == 0)
+									{
+										int old_dur = jt->duration;
+										jt->duration = some_task.left;
 
-				//еще обработка
+										for (int q = some_task.left; q < some_task.left + some_task.duration; ++q)
+											arr2[q] = some_task.importance;
+										for (int q = some_task.left + some_task.duration; q < jt->left + old_dur; ++q)
+											arr2[q] = 0;
+									}
+									break;
+								}
+							}
+						}
+						--k;
+					}
+
+					
+					for (std::vector<Task>::iterator qt = not_processed.begin(); qt < not_processed.end(); ++qt)
+					{
+						if (*qt == some_task)
+						{
+							not_processed.erase(qt);
+							break;
+						}
+					}
+					for (std::vector<Task>::iterator jt = processed.begin(); jt < processed.end(); ++jt)
+					{
+						if (*jt == some_task)
+							++already_added;
+					}
+					if (!already_added)
+						processed.push_back(some_task);
+					
+				}
 			}
 			else if (some_task.importance < arr2[j])//imp2 < imp1
 			{
