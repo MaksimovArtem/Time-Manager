@@ -302,21 +302,27 @@ void Day::add_task_concrete_time(Task &some_task)
 						break;
 				}
 			}
+			else if (some_task.importance < arr2[j])
+			{
+				
+				for (std::vector<Task>::iterator jt = processed.begin(); jt < processed.end(); ++jt)
+				{
+					if (*jt == some_task)
+					{
+						processed.erase(jt);
+						break;
+					}
+					
+				}
+				some_task.duration = j;
+
+				processed.push_back(some_task);//костыль. Ломает логику(порядок)
+			}
 			++j;
 		mark:;
 		}
 		
 	}
-	/*for (std::vector<Task>::iterator it = processed.begin(); it < processed.end(); ++it)
-	{
-		for (int i = 0; i < M; ++i) 
-		{
-			if (i == it->left && arr2[i] != it->importance)
-			{
-				
-			}
-		}
-	}*/
 
 }
 
