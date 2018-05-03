@@ -95,7 +95,7 @@ void Day::add_task_concrete_time(Task &some_task)
 						if(some_task.left > it->left)
 							it->duration = some_task.left;
 
-						j = it->left + it->duration;
+						j = it->left + it->duration ;
 
 						not_processed.push_back(*it);
 						processed.erase(it);
@@ -135,12 +135,23 @@ void Day::add_task_concrete_time(Task &some_task)
 									if (jt->divisibility == 0)//если неделимое, то режь
 									{
 										int old_dur = jt->duration;
+										//j = jt->duration;
 										jt->duration = some_task.left;
 
-										for (int q = some_task.left; q < some_task.left + some_task.duration; ++q)
-											arr2[q] = some_task.importance;
-										for (int q = some_task.left + some_task.duration; q < jt->left + old_dur; ++q)
-											arr2[q] = 0;
+										if (some_task.left + some_task.duration < jt->left + old_dur)
+										{
+											for (int q = some_task.left; q < some_task.left + some_task.duration; ++q)
+												arr2[q] = some_task.importance;
+											for (int q = some_task.left + some_task.duration; q < jt->left + old_dur; ++q)
+												arr2[q] = 0;
+											j = some_task.left + some_task.duration - 1;
+										}
+										else
+										{
+											for (int q = some_task.left; q < jt->left + old_dur; ++q)
+												arr2[q] = some_task.importance;
+											j = some_task.left + old_dur - 2;
+										}
 									}
 									break;
 								}
@@ -148,7 +159,7 @@ void Day::add_task_concrete_time(Task &some_task)
 						}
 						--k;
 					}	
-					j = some_task.left + some_task.duration;
+					
 					for (std::vector<Task>::iterator qt = not_processed.begin(); qt < not_processed.end(); ++qt)//удаление из вектора необр
 					{
 						if (*qt == some_task)
@@ -189,16 +200,33 @@ void Day::add_task_concrete_time(Task &some_task)
 								if (some_task.left + some_task.duration < it->left + it->duration)
 									for (int q = some_task.left + some_task.duration; q < it->left + it->duration; ++q)
 										arr2[q] = 0;
-
+							
 								if (it->duration < some_task.duration)
-									j = some_task.left + it->duration;
+									j = some_task.left + it->duration - 1;
 								else
-									j = some_task.left + some_task.duration;
+									j = some_task.left + some_task.duration - 1;
 
+								///////////////////////////////copypasta
+								for (std::vector<Task>::iterator jt = processed.begin(); jt < processed.end(); ++jt)//добавление в вектор обработанных
+								{
+									if (*jt == some_task)
+										++already_added;
+								}
+								if (!already_added)
+									processed.push_back(some_task);
+
+								for (std::vector<Task>::iterator qt = not_processed.begin(); qt < not_processed.end(); ++qt)//удаление из вектора необработанных
+								{
+									if (*qt == some_task)
+									{
+										not_processed.erase(qt);
+										break;
+									}
+								}
+								/////////////////////////////////
 								not_processed.push_back(*it);//удаления/добавления
 								processed.erase(it);
-								not_processed.erase(not_processed.end() - 1);
-								processed.push_back(some_task);
+								
 								
 								++found;
 								break;
@@ -212,8 +240,25 @@ void Day::add_task_concrete_time(Task &some_task)
 										arr2[q] == 0;
 								for (int q = some_task.left; q < it->left+it->duration; ++q)
 									arr2[q] = some_task.importance;
-								not_processed.erase(not_processed.end() - 1);
-								processed.push_back(some_task);
+
+								///////////////////
+								for (std::vector<Task>::iterator jt = processed.begin(); jt < processed.end(); ++jt)//добавление в вектор обработанных
+								{
+									if (*jt == some_task)
+										++already_added;
+								}
+								if (!already_added)
+									processed.push_back(some_task);
+
+								for (std::vector<Task>::iterator qt = not_processed.begin(); qt < not_processed.end(); ++qt)//удаление из вектора необработанных
+								{
+									if (*qt == some_task)
+									{
+										not_processed.erase(qt);
+										break;
+									}
+								}
+								///////////////
 								
 								
 								++found;
@@ -221,14 +266,31 @@ void Day::add_task_concrete_time(Task &some_task)
 							}
 							else if (some_task.left < it->left)
 							{
-								for (int q = some_task.left; q < some_task.left + some_task.duration; ++q)
-									arr2[q] = some_task.importance;
+								//for (int q = some_task.left; q < some_task.left + some_task.duration; ++q)
+									//arr2[q] = some_task.importance;
 								for (int q = some_task.left + some_task.duration; q < it->left + it->duration; ++q)
 									arr2[q] = 0;
 								not_processed.push_back(*it);
 								processed.erase(it);
-								not_processed.erase(not_processed.end() - 1);
-								processed.push_back(some_task);
+								
+								///
+								for (std::vector<Task>::iterator jt = processed.begin(); jt < processed.end(); ++jt)//добавление в вектор обработанных
+								{
+									if (*jt == some_task)
+										++already_added;
+								}
+								if (!already_added)
+									processed.push_back(some_task);
+
+								for (std::vector<Task>::iterator qt = not_processed.begin(); qt < not_processed.end(); ++qt)//удаление из вектора необработанных
+								{
+									if (*qt == some_task)
+									{
+										not_processed.erase(qt);
+										break;
+									}
+								}
+								///
 								j = some_task.left + some_task.duration;
 								++found;
 								break;
@@ -245,5 +307,16 @@ void Day::add_task_concrete_time(Task &some_task)
 		}
 		
 	}
+	/*for (std::vector<Task>::iterator it = processed.begin(); it < processed.end(); ++it)
+	{
+		for (int i = 0; i < M; ++i) 
+		{
+			if (i == it->left && arr2[i] != it->importance)
+			{
+				
+			}
+		}
+	}*/
+
 }
 
